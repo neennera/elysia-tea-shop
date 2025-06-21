@@ -8,7 +8,7 @@ export abstract class TeaManuService {
       data: "all manu",
     };
   }
-  static async TeaManu({ id }: { id: number }) {
+  static async TeaManu(id: number) {
     return {
       data: `manu ${id}`,
     };
