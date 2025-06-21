@@ -13,9 +13,27 @@ export abstract class TeaManuService {
       data: `manu ${id}`,
     };
   }
-  static async newTeaManu({ name, price }: TeaManuModel.TeaManuBodyType) {
+  static async newTeaManu({ name, price }: TeaManuModel.NewTeaManuBody) {
     return {
       id: "new id ja",
+      name,
+      price,
+    };
+  }
+  static async RemoveTeaManu(id: number) {
+    return {
+      data: `deleted manu ${id}`,
+    };
+  }
+  static async UpdateTeaManu({
+    id,
+    name,
+    price,
+  }: TeaManuModel.TeaManuBodyType) {
+    return {
+      id: id,
+      name,
+      price,
     };
   }
 }
