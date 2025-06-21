@@ -16,8 +16,8 @@ export abstract class AuthService {
 
       if (!user) return status(404, { message: "User id not found" });
 
-      if (password != user.password)
-        return status(500, { message: "Wroung Password" });
+      const isMatch = await Bun.password.verify(password, user.password);
+      if (!isMatch) return status(500, { message: "Wroung Password" });
 
       return {
         message: "login success",
@@ -36,11 +36,12 @@ export abstract class AuthService {
     email,
   }: AuthBody.AuthSignUpBodyType) {
     try {
+      const hashedPassword = await Bun.password.hash(password);
       const newUser = await prisma.user.create({
         data: {
           name,
           username,
-          password,
+          password: hashedPassword,
           email,
         },
       });
@@ -102,11 +103,11 @@ export abstract class AuthService {
     password,
   }: AuthBody.AuthUpdateBodyType) {
     try {
-      const hashPassword = password;
+      const hashedPassword = await Bun.password.hash(password);
       const updated = await prisma.user.update({
         where: { id },
         data: {
-          password: hashPassword,
+          password: hashedPassword,
         },
       });
       return {
