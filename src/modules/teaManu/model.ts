@@ -2,7 +2,7 @@ import { t } from "elysia";
 
 export namespace TeaManuModel {
   export const TeaManuBody = t.Object({
-    id: t.Integer(),
+    id: t.String(),
     name: t.Optional(t.String()),
     price: t.Optional(t.Numeric()),
   });

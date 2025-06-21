@@ -4,7 +4,6 @@ import { TeaManuService } from "./service";
 
 export const teaManu = new Elysia({ prefix: "/teamanu" })
   .get("/", () => {
-    console.log("HI");
     return TeaManuService.TeaManus();
   })
   .get(
@@ -14,8 +13,8 @@ export const teaManu = new Elysia({ prefix: "/teamanu" })
     },
     {
       params: t.Object({
-        id: t.Number({
-          minimum: 1,
+        id: t.String({
+          minLength: 1,
           error: { message: "id must be an integer" },
         }),
       }),
@@ -55,8 +54,8 @@ export const teaManu = new Elysia({ prefix: "/teamanu" })
     },
     {
       params: t.Object({
-        id: t.Number({
-          minimum: 1,
+        id: t.String({
+          minLength: 1,
           error: { message: "id must be an integer" },
         }),
       }),
@@ -92,8 +91,8 @@ export const teaManu = new Elysia({ prefix: "/teamanu" })
     },
     {
       params: t.Object({
-        id: t.Number({
-          minimum: 1,
+        id: t.String({
+          minLength: 1,
           error: { message: "id must be an integer" },
         }),
       }),
