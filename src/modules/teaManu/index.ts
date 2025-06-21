@@ -1,10 +1,12 @@
 import { Elysia, t } from "elysia";
 
-import { TeaManuModel } from "./model";
 import { TeaManuService } from "./service";
 
 export const teaManu = new Elysia({ prefix: "/teamanu" })
-  .get("/", () => TeaManuService.TeaManus())
+  .get("/", () => {
+    console.log("HI");
+    return TeaManuService.TeaManus();
+  })
   .get(
     "/:id",
     ({ params }) => {

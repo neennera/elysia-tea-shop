@@ -1,11 +1,16 @@
 // Service handle business logic, decoupled from Elysia controller
 import { status } from "elysia";
 import { TeaManuModel } from "./model";
+import { PrismaClient } from "../../../generated/prisma";
+const prisma = new PrismaClient();
 
 export abstract class TeaManuService {
   static async TeaManus() {
+    const teas = await prisma.teaManu.findMany();
+    console.log(teas);
+
     return {
-      data: "all manu",
+      data: teas,
     };
   }
   static async TeaManu(id: number) {
