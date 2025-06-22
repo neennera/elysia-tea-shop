@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_MYSQL")
+}
+
+generator prismabox { 
+  provider = "prismabox"
+  typeboxImportDependencyName = "elysia"
+  typeboxImportVariableName = "t"
+  inputModel = true
+  output   = "../generated/prismabox"
+} 
+
+model User {
+  id    String  @id @default(cuid())
+  email String  @unique
+  name  String @default("unnamed")
+  username  String @default("unnamed")
+  password String @default("password")
+  receipts Receipt[]
+}
+
+model TeaManu {
+  id        String  @id @default(cuid())
+  name      String
+  price     Float  
+ receipts Receipt[]
+}
+
+model Receipt {
+    id          Int @id() @default(autoincrement())
+    customer    User        @relation(fields: [customerId], references: [id])
+    customerId  String
+    tea         TeaManu     @relation(fields: [teaId], references: [id])
+    teaId       String
+}
