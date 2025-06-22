@@ -1,7 +1,6 @@
 import { Elysia, t } from "elysia";
 import { AuthService } from "./service";
 import { jwt } from "@elysiajs/jwt";
-import { ElysiaCustomStatusResponse } from "elysia/dist/error";
 
 export const auth = new Elysia({ prefix: "/auth" })
   .use(
@@ -10,10 +9,14 @@ export const auth = new Elysia({ prefix: "/auth" })
       secret: process.env.JWT_SECRET || "jwt_secret",
     })
   )
-  .get("/me", async ({ jwt, cookie: { authToken } }) => {
+  .derive(async ({ jwt, cookie: { authToken } }) => {
     const profile = await jwt.verify(authToken.value);
-    return profile;
-  })
+    if (!profile) return { auth: false, profile: null };
+    return { auth: true, profile };
+  });
+
+// No guard (signIn, signUp)
+auth
   // User login endpoint
   .post(
     "/signin",
@@ -27,11 +30,12 @@ export const auth = new Elysia({ prefix: "/auth" })
         return signInResponse;
       }
 
+      // sign jwt token
       const value = await jwt.sign({
         id: signInResponse.data.id,
         name: signInResponse.data.name,
       });
-
+      // set jwt token to cookie authToken
       authToken.set({
         value,
         httpOnly: true,
@@ -93,87 +97,106 @@ export const auth = new Elysia({ prefix: "/auth" })
         { error: { message: "all fields are required for signup" } }
       ),
     }
-  )
-  // Update user info endpoint
-  .patch(
-    "/user/:id",
-    ({ params, body }) => {
-      return AuthService.UpdateUserInfo({
-        id: params.id,
-        ...body,
-      });
-    },
-    {
-      params: t.Object({
-        id: t.String({
-          minLength: 1,
-          error: { message: "user id is required" },
-        }),
-      }),
-      body: t.Object(
-        {
-          name: t.Optional(
-            t.String({
-              minLength: 2,
-              error: { message: "name must be at least 2 characters" },
-            })
-          ),
-          username: t.Optional(
-            t.String({
-              minLength: 3,
-              error: { message: "username must be at least 3 characters" },
-            })
-          ),
-        },
-        {
-          additionalProperties: false,
-          minProperties: 1,
-          error: {
-            message: "At least one field (name or username) must be provided",
-          },
-        }
-      ),
-    }
-  )
-  // Update user password endpoint
-  .patch(
-    "/user/:id/password",
-    ({ params, body }) => {
-      return AuthService.UpdateUserPassword({
-        id: params.id,
-        password: body.password,
-      });
-    },
-    {
-      params: t.Object({
-        id: t.String({
-          minLength: 1,
-          error: { message: "user id is required" },
-        }),
-      }),
-      body: t.Object(
-        {
-          password: t.String({
-            minLength: 6,
-            error: { message: "password must be at least 6 characters" },
-          }),
-        },
-        { error: { message: "password is required" } }
-      ),
-    }
-  )
-  // Delete user endpoint
-  .delete(
-    "/user/:id",
-    ({ params }) => {
-      return AuthService.DeleteUser(params.id);
-    },
-    {
-      params: t.Object({
-        id: t.String({
-          minLength: 1,
-          error: { message: "user id is required" },
-        }),
-      }),
-    }
   );
+
+auth.guard(
+  {
+    beforeHandle: ({ profile, set }) => {
+      if (!profile) {
+        set.status = 401;
+        return { error: "Unauthorized" };
+      }
+    },
+  },
+  (auth) => {
+    auth
+      .get("/me", async ({ profile }) => {
+        return profile;
+      }) // Update user info endpoint
+      .patch(
+        "/user/:id",
+        ({ params, body }) => {
+          return AuthService.UpdateUserInfo({
+            id: params.id,
+            ...body,
+          });
+        },
+        {
+          params: t.Object({
+            id: t.String({
+              minLength: 1,
+              error: { message: "user id is required" },
+            }),
+          }),
+          body: t.Object(
+            {
+              name: t.Optional(
+                t.String({
+                  minLength: 2,
+                  error: { message: "name must be at least 2 characters" },
+                })
+              ),
+              username: t.Optional(
+                t.String({
+                  minLength: 3,
+                  error: { message: "username must be at least 3 characters" },
+                })
+              ),
+            },
+            {
+              additionalProperties: false,
+              minProperties: 1,
+              error: {
+                message:
+                  "At least one field (name or username) must be provided",
+              },
+            }
+          ),
+        }
+      )
+      // Update user password endpoint
+      .patch(
+        "/user/:id/password",
+        ({ params, body }) => {
+          return AuthService.UpdateUserPassword({
+            id: params.id,
+            password: body.password,
+          });
+        },
+        {
+          params: t.Object({
+            id: t.String({
+              minLength: 1,
+              error: { message: "user id is required" },
+            }),
+          }),
+          body: t.Object(
+            {
+              password: t.String({
+                minLength: 6,
+                error: { message: "password must be at least 6 characters" },
+              }),
+            },
+            { error: { message: "password is required" } }
+          ),
+        }
+      )
+      // Delete user endpoint
+      .delete(
+        "/user/:id",
+        ({ params }) => {
+          return AuthService.DeleteUser(params.id);
+        },
+        {
+          params: t.Object({
+            id: t.String({
+              minLength: 1,
+              error: { message: "user id is required" },
+            }),
+          }),
+        }
+      );
+
+    return auth;
+  }
+);
