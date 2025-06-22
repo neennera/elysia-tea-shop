@@ -81,7 +81,6 @@ export abstract class AuthService {
         data: {
           ...(name !== undefined && { name }),
           ...(username !== undefined && { username }),
-          ...(name !== undefined && { name }),
         },
       });
       return {

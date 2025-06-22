@@ -1,16 +1,47 @@
 import { Elysia, t } from "elysia";
-
 import { AuthService } from "./service";
+import { jwt } from "@elysiajs/jwt";
+import { ElysiaCustomStatusResponse } from "elysia/dist/error";
 
 export const auth = new Elysia({ prefix: "/auth" })
+  .use(
+    jwt({
+      name: "jwt",
+      secret: process.env.JWT_SECRET || "jwt_secret",
+    })
+  )
+  .get("/me", async ({ jwt, cookie: { authToken } }) => {
+    const profile = await jwt.verify(authToken.value);
+    return profile;
+  })
   // User login endpoint
   .post(
     "/signin",
-    ({ body }) => {
-      return AuthService.userSignIn({
+    async ({ jwt, cookie: { authToken }, body }) => {
+      const signInResponse: any = await AuthService.userSignIn({
         username: body.username,
         password: body.password,
       });
+
+      if ("status" in signInResponse && signInResponse.status >= 400) {
+        return signInResponse;
+      }
+
+      const value = await jwt.sign({
+        id: signInResponse.data.id,
+        name: signInResponse.data.name,
+      });
+
+      authToken.set({
+        value,
+        httpOnly: true,
+        maxAge: 7 * 86400,
+      });
+
+      return {
+        message: "Login successful",
+        user: value,
+      };
     },
     {
       body: t.Object(
@@ -55,7 +86,7 @@ export const auth = new Elysia({ prefix: "/auth" })
             error: { message: "name must be at least 2 characters" },
           }),
           email: t.String({
-            // format: "gmail",
+            format: "email",
             error: { message: "email must be a valid email address" },
           }),
         },
