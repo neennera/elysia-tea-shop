@@ -1,0 +1,27 @@
+version: "3.8" # Specifies the Docker Compose file format version
+
+services:
+  tea-elysia-db: # Defines a service named 'db' for the MySQL database
+    image: mysql:8.0 # Uses the official MySQL 8.0 image from Docker Hub
+    container_name: tea-elysia-my-mysql-db # Assigns a specific name to the container
+    restart: always # Ensures the container restarts automatically if it stops
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password # Sets the root password for MySQL
+      MYSQL_DATABASE: db_dev # Creates a default database upon startup
+      MYSQL_USER: db_user # Creates a new user
+      MYSQL_PASSWORD: db_password # Sets the password for the new user
+      MYSQL_ROOT_HOST: "%" # Allow root connections from any host
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306" # Maps host port 3306 to container port 3306
+    volumes:
+      - tea-elysia-db-data:/var/lib/mysql # Persists data to a named volume on the host
+      # - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Optional: To execute an initial SQL script
+
+volumes:
+  tea-elysia-db-data: # Defines the named volume for persistent data storage
+
+# I need to grate PRIVILEGES to db_user in order to connect prisma& migrate
+# GRANT ALL PRIVILEGES ON db_dev.* TO 'db_user'@'%';
+# GRANT CREATE, ALTER, DROP, REFERENCES ON *.* TO 'db_user'@'%';
+# FLUSH PRIVILEGES;
