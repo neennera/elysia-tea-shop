@@ -6,10 +6,10 @@ This project is a RESTful API for a tea shop management system built with modern
 
 - **Bun**: A fast JavaScript runtime with built-in package manager and test runner
 - **Elysia.js**: A high-performance TypeScript framework for building web APIs
-- **Prisma**: Next-generation ORM for Node.js and TypeScript
-- **MySQL**: Relational database for data storage
 - **JWT**: JSON Web Tokens for secure authentication
 - **Google OAuth**: Social authentication integration
+- **Prisma**: Next-generation ORM for Node.js and TypeScript
+- **MySQL**: Relational database for data storage
 - **Docker**: Containerization for consistent development and deployment
 
 ## Features
@@ -30,6 +30,21 @@ This project is a RESTful API for a tea shop management system built with modern
   - Elysia guard & beforeHandle derive function
   - User profile management
 
+## Google Authentication
+
+The API supports user authentication via Google OAuth:
+
+- visit to http://localhost:3000/googleauth/signin to try
+- Users can sign in with their Google accounts via `/auth/signin/google`
+- On successful authentication, a JWT token is issued
+- User profiles are automatically created for new Google sign-ins
+- Existing accounts can be linked to Google authentication
+
+## API Documentation
+
+Once the server is running, you can access the Swagger documentation at:
+http://localhost:3000/swagger
+
 ## Project Structure
 
 ```
@@ -42,7 +57,8 @@ src/
 │ │ ├── google.ts # Google OAuth integration
 │ │ ├── model.ts # Type definitions
 │ │ └── service.ts # Business logic
-│ └── teaManu/ # Tea menu module
+│ └── teaManu/ # Tea menu module CRUD
+│ └── google/  # Google OAuth integration
 │ ├── index.ts # Route definitions
 │ ├── model.ts # Type definitions
 │ └── service.ts # Business logic
@@ -106,17 +122,3 @@ src/
    ```
 
 7. Access the API at http://localhost:3000
-
-## Google Authentication
-
-The API supports user authentication via Google OAuth:
-
-- Users can sign in with their Google accounts via `/auth/signin/google`
-- On successful authentication, a JWT token is issued
-- User profiles are automatically created for new Google sign-ins
-- Existing accounts can be linked to Google authentication
-
-## API Documentation
-
-Once the server is running, you can access the Swagger documentation at:
-http://localhost:3000/swagger
