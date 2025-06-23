@@ -78,7 +78,7 @@ src/
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/elysia-tea-shop.git
+   git clone https://github.com/neennera/elysia-tea-shop.git
    cd elysia-tea-shop
    ```
 
