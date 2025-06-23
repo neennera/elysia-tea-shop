@@ -195,7 +195,20 @@ auth.guard(
             }),
           }),
         }
-      );
+      )
+      .post("/signout", ({ cookie: { authToken }, set }) => {
+        // Clear the auth token by setting maxAge to 0
+        authToken.set({
+          value: "",
+          httpOnly: true,
+          maxAge: 0,
+          path: "/",
+        });
+
+        return {
+          message: "Logged out successfully",
+        };
+      });
 
     return auth;
   }
