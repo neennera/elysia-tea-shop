@@ -1,6 +1,9 @@
 import { Elysia } from "elysia";
+
 import { teaManu } from "./modules/teaManu";
 import { auth } from "./modules/auth";
+import { googleAuth } from "./modules/google";
+
 import { swagger } from "@elysiajs/swagger";
 import { jwt } from "@elysiajs/jwt";
 import cookie from "@elysiajs/cookie";
@@ -19,6 +22,7 @@ app
   .get("/", () => "Hello Elysia")
   .use(teaManu)
   .use(auth)
+  .use(googleAuth)
   .listen(3000);
 
 console.log(

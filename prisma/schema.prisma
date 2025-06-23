@@ -21,8 +21,10 @@ model User {
   email String  @unique
   name  String @default("unnamed")
   username  String @default("unnamed")
-  password String @default("password")
+  password String? @default("password") // Make password optional for social logins
   receipts Receipt[]
+  googleId        String?   
+  profilePicture  String? 
 }
 
 model TeaManu {
